@@ -1,0 +1,14 @@
+{
+  "name": "airtunes",
+  "description": "Implementation of AirTunes v2",
+  "author": "Laurent Perrin",
+  "version": "0.1.0",
+  "main": "./lib/index.js",
+  "repository": {
+    "type: "git",
+    "url": "http://github.com/radioline/node-airtunes.git"
+  },
+  "dependencies": {
+    "async": "0.1.18"
+  }
+}
