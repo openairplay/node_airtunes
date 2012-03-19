@@ -2,12 +2,12 @@
   "name": "airtunes",
   "description": "an AirTunes v2 implementation: stream wirelessly to audio devices.",
   "keywords": ["airtunes", "airplay", "raop", "coreaudio", "sound"],
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Laurent Perrin",
   "main": "./lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/radioline/node-airtunes.git"
+    "url": "https://github.com/radioline/node_airtunes.git"
   },
   "licenses": [
     {
