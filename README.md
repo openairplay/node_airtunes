@@ -34,12 +34,12 @@ OK, now what is node-airtunes ?
 -------------------------------
 
 Node-airtunes is a node.js implementation of AirTunes v2. It supports synchronized audio output to any number of
-AirTunes receivers (like Apple's AirPort Express or AirFoil Speakers). It also allows synchronized local playback with CoreAudio (OS X only).
+AirTunes receivers (like Apple's AirPort Express or AirFoil Speakers).
 
 What about Core Audio ?
 -----------------------
 
-Core Audio is the name Apple gives to iOS/OS X low-level sound API. node-airtunes has bindings to Core Audio to allow local and remote playback to be synchronized. Obviously, this will only work on OS X.
+Core Audio is the name Apple gives to iOS/OS X low-level sound API. node-airtunes has bindings to Core Audio to allow synchronized local and remote playback (local sync is not perfect yet). Obviously, this will only work on OS X.
 
 Credits
 -------
@@ -67,7 +67,7 @@ There is an internal circular buffer which allows to stream from a network sourc
 * `'playing'`: Real sound is being streamed to devices.
 * `'end'`: The buffer was closed by the input stream. Attempting to write more data will raise an exception.
 
-After an `end` event, you should close all devices with `airtunes.stopAll()` after 2s (AirTunes devices usually have a 2s delay). If you want to pipe several successive streams to airtunes, you must pass `{end: false}` to `stream.pipe`.
+After an `end` event, you should close all devices with `airtunes.stopAll()` 2s later (AirTunes devices usually have a 2s delay). If you want to pipe several successive streams to airtunes, just pass `{end: false}` to `stream.pipe`.
 
 ### AirTunes Devices
 
