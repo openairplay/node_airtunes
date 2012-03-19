@@ -10,7 +10,7 @@ console.log('pipe PCM data to play over AirTunes');
 console.log('example: cat ./sample.pcm | node play_stdin.js --host <AirTunes host>\n');
 
 // Only works on OSX
-airtunes.addCoreAudio();
+// airtunes.addCoreAudio();
 
 console.log('adding device: ' + argv.host + ':' + argv.port);
 var device = airtunes.add(argv.host, argv);
