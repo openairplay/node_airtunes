@@ -36,6 +36,11 @@ OK, now what is node-airtunes ?
 Node-airtunes is a node.js implementation of AirTunes v2. It supports synchronized audio output to any number of
 AirTunes receivers (like Apple's AirPort Express or AirFoil Speakers). It also allows synchronized local playback with CoreAudio (OS X only).
 
+What about Core Audio ?
+-----------------------
+
+Core Audio is the name Apple gives to iOS/OS X low-level sound API. node-airtunes has bindings to Core Audio to allow local and remote playback to be synchronized. Obviously, this will only work on OS X.
+
 Credits
 -------
 
@@ -88,13 +93,13 @@ AirTunes devices emit `'status'` events:
 They also emit `'error'` events. After an error, a device will no longer emit any events.
 
 * `'timeout'`: The device did not reply within `'config.rtsp\_timeout'`.
-* `'connection\_refused'`: The device refused the connection on the given port.
+* `'connection_refused'`: The device refused the connection on the given port.
 * `'busy'`: Another application is already streaming to this device.
 * `'disconnected'`: The device closed the connection. This usually happens at the user's request.
-* `'need\_password'`: The device demands a password, but none was passed.
-* `'bad\_password'`: The device refused the given password.
-* `'udp\_ports'`: Could not bind UDP ports (these are required by AirPort v2).
-* `'rtsp\_socket'`: Another unhandled RTSP error.
+* `'need_password'`: The device demands a password, but none was passed.
+* `'bad_password'`: The device refused the given password.
+* `'udp_ports'`: Could not bind UDP ports (these are required by AirPort v2).
+* `'rtsp_socket'`: Another unhandled RTSP error.
 
 You can stop a device with:
 
@@ -154,7 +159,7 @@ In our case, we follow this sequence:
 * `ANNOUNCE`: Among other things, we send an AES key and an IV (injection vector). The AES key is encrypted with a public RSA key shared by all AirTunes device. It is used to encrypt the audio packets. For simplicity's sake, we always use the same key/IV.
 * `SETUP`: We send UDP ports for control and timing. These ports are chosen before the handshake starts. The device replies with ports of its own.
 * `RECORD`: During record, we send the initial sequence and RTP time. These values allow devices to synchronize themselves.
-* `SET\_PARAMETER`: Used to change the volume.
+* `SET_PARAMETER`: Used to change the volume.
 * `TEARDOWN`: Used to terminate the connection. The stop callback is called when the device replies to this query.
 
 The RTSP socket stays open during the whole audio session. Since everything else is tranferred with UDP, closing this socket is the easiest way of letting the other peer know that the session is finished.
