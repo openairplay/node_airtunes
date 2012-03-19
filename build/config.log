@@ -1,6 +1,6 @@
-# project noname (0.0.1) configured on Wed Feb 29 20:36:47 2012 by
+# project noname (0.0.1) configured on Fri Mar  2 22:41:11 2012 by
 # waf 1.5.16 (abi 7, python 20701f0 on darwin)
-# using /usr/local/bin/node-waf configure build
+# using /usr/local/bin/node-waf clean configure
 #
 
 ----------------------------------------

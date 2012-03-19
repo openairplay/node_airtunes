@@ -9,25 +9,29 @@ var airtunes = require('../lib/'),
 console.log('pipe PCM data to play over AirTunes');
 console.log('example: cat ./sample.pcm | node play_stdin.js --host <AirTunes host>\n');
 
+// Only works on OSX
+airtunes.addCoreAudio();
+
 console.log('adding device: ' + argv.host + ':' + argv.port);
-airtunes.add(argv);
+var device = airtunes.add(argv.host, argv);
+
 
 // when the device is online, spawn ffmpeg to transcode the file
-airtunes.on('device', function(key, status, desc) {
-  console.log('device ' + key + ' status: ' + status + (desc ? ' ' + desc : ''));
-
-  if(status !== 'playing')
-    process.exit(1);
-
+device.on('status', function(status) {
   process.stdin.pipe(airtunes);
   process.stdin.resume();
 });
+
+device.on('error', function(err) {
+  console.log('device error: ' + err);
+  process.exit(1);
+})
 
 // monitor buffer events
 airtunes.on('buffer', function(status) {
   console.log('buffer ' + status);
 
-  // after the playback ends, give some time to AirTunes devices
+  // after the playback ends, give AirTunes some time to finish
   if(status === 'end') {
     console.log('playback ended, waiting for AirTunes devices');
     setTimeout(function() {

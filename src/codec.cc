@@ -18,6 +18,10 @@ using namespace node;
 static int kBlockSize = 16;
 static int kFramesPerPacket = 352;
 
+// These values should be changed at each iteration
+static uint8_t iv [] = { 0x78, 0xf4, 0x41, 0x2c, 0x8d, 0x17, 0x37, 0x90, 0x2b, 0x15, 0xa6, 0xb3, 0xee, 0x77, 0x0d, 0x67 };
+static uint8_t aes_key [] = { 0x14, 0x49, 0x7d, 0xcc, 0x98, 0xe1, 0x37, 0xa8, 0x55, 0xc1, 0x45, 0x5a, 0x6b, 0xc0, 0xc9, 0x79 };
+
 namespace nodeairtunes {
 
 void FillInputAudioFormat(AudioFormatDescription *format) {
@@ -48,21 +52,12 @@ void FillOutputAudioFormat(AudioFormatDescription *format) {
   format->mReserved = 0;
 }
 
-void encoder_weak_callback (Persistent<Value> wrapper, void *arg) {
-  HandleScope scope;
-  ALACEncoder *encoder = (ALACEncoder *)arg;
-  delete encoder;
-  wrapper.Dispose();
-}
-
-
+// This will encrypt data in-place
 static int AESEncrypt(uint8_t *data, int size)
 {
   uint8_t *buf;
   int i = 0, j;
-  uint8_t iv [] = { 0x78, 0xf4, 0x41, 0x2c, 0x8d, 0x17, 0x37, 0x90, 0x2b, 0x15, 0xa6, 0xb3, 0xee, 0x77, 0x0d, 0x67 };
-  uint8_t nv [] = { 0x78, 0xf4, 0x41, 0x2c, 0x8d, 0x17, 0x37, 0x90, 0x2b, 0x15, 0xa6, 0xb3, 0xee, 0x77, 0x0d, 0x67 };
-  uint8_t aes_key [] = { 0x14, 0x49, 0x7d, 0xcc, 0x98, 0xe1, 0x37, 0xa8, 0x55, 0xc1, 0x45, 0x5a, 0x6b, 0xc0, 0xc9, 0x79};
+  uint8_t nv[kBlockSize];
 
   aes_context ctx;
   aes_set_key(&ctx, aes_key, 128);
@@ -83,6 +78,15 @@ static int AESEncrypt(uint8_t *data, int size)
   return i;
 }
 
+void encoder_weak_callback (Persistent<Value> wrapper, void *arg) {
+  HandleScope scope;
+  ALACEncoder *encoder = (ALACEncoder *)arg;
+  delete encoder;
+  wrapper.Dispose();
+}
+
+// Creates a new encoder instance and wraps it in a JavaScript object.
+// This encoder is freed when the object is released by the GC.
 Handle<Value> NewEncoder(const Arguments& args) {
   HandleScope scope;
 
@@ -140,5 +144,3 @@ void InitCodec(Handle<Object> target) {
 }
 
 } // nodeairtunes namespace
-
-NODE_MODULE(bindings, nodeairtunes::InitCodec);

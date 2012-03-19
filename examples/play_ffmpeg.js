@@ -10,14 +10,14 @@ var airtunes = require('../lib/'),
       .argv;
 
 console.log('adding device: ' + argv.host + ':' + argv.port);
-airtunes.add(argv);
+var device = airtunes.add(argv.host, argv);
 
 // when the device is online, spawn ffmpeg to transcode the file
-airtunes.on('device', function(key, status, desc) {
-  console.log('device ' + key + ' status: ' + status + ' ' + desc);
+device.on('status', function(status) {
+  console.log('status: ' + status);
 
-  if(status !== 'playing')
-    process.exit(1);
+  if(status !== 'ready')
+    return;
 
   var ffmpeg = spawn(argv.ffmpeg, [
     '-i', argv.file,
