@@ -142,6 +142,11 @@ Known Issues
 
 While synchronization works nicely with AirTunes devices, there are sometimes problems with Core Audio.
 
+License
+-------
+
+node-airtunes is available under the BSD license.
+
 How does it work ?
 ------------------
 
