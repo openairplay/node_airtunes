@@ -92,7 +92,7 @@ AirTunes devices emit `'status'` events:
 
 They also emit `'error'` events. After an error, a device will no longer emit any events.
 
-* `'timeout'`: The device did not reply within `'config.rtsp\_timeout'`.
+* `'timeout'`: The device did not reply within `'config.rtsp_timeout'`.
 * `'connection_refused'`: The device refused the connection on the given port.
 * `'busy'`: Another application is already streaming to this device.
 * `'disconnected'`: The device closed the connection. This usually happens at the user's request.
@@ -152,15 +152,15 @@ How does it work ?
 
 If you want detailed information about AirTunes v2, you should read the excellent documentation written by the [Airtunes 2 Team](http://git.zx2c4.com/Airtunes2/about/). I'm including this short explanations for those not familiar with audio streaming in general.
 
-While being promoted as a proprietary protocol, AirTunes is really built on several existing protocols (RTSP, RTP and NTP) with a several quirks. Not reinventing the wheel is a good thing.
+While being promoted as a proprietary protocol, AirTunes is really built on several existing protocols (RTSP, RTP and NTP) with several quirks. Not reinventing the wheel is a good thing.
 
 ### RTSP Handshake
 
 AirTunes starts with an RTSP negociation. it is an HTTP-like protocol. The major difference being that it uses different verbs. Several successive requests are made to exchange parameters tneeded later. The `'status' = 'ready'` event is emitted when this handshake successfully completes.
 
-In our case, we follow this sequence:
+We follow this sequence:
 
-* `OPTIONS`: Apple added a proprietary 'Apple-Challenge' header so that iTunes can check if the receiving device is legit. We do send the header, but we don't check the challenge response.
+* `OPTIONS`: Apple added a proprietary `'Apple-Challenge'` header so that iTunes can check if the receiving device is legit. We do send the header, but we don't check the challenge response.
 * `ANNOUNCE`: Among other things, we send an AES key and an IV (injection vector). The AES key is encrypted with a public RSA key shared by all AirTunes device. It is used to encrypt the audio packets. For simplicity's sake, we always use the same key/IV.
 * `SETUP`: We send UDP ports for control and timing. These ports are chosen before the handshake starts. The device replies with ports of its own.
 * `RECORD`: During record, we send the initial sequence and RTP time. These values allow devices to synchronize themselves.
