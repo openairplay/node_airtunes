@@ -52,32 +52,6 @@ void FillOutputAudioFormat(AudioFormatDescription *format) {
   format->mReserved = 0;
 }
 
-// This will encrypt data in-place
-static int AESEncrypt(uint8_t *data, int size)
-{
-  uint8_t *buf;
-  int i = 0, j;
-  uint8_t nv[kBlockSize];
-
-  aes_context ctx;
-  aes_set_key(&ctx, aes_key, 128);
-  memcpy(nv, iv, kBlockSize);
-
-  while(i + kBlockSize <= size) {
-    buf = data + i;
-
-    for(j = 0; j < kBlockSize; j++)
-      buf[j] ^= nv[j];
-
-    aes_encrypt(&ctx, buf, buf);
-    memcpy(nv, buf, kBlockSize);
-
-    i += kBlockSize;
-  }
-
-  return i;
-}
-
 void encoder_weak_callback (Persistent<Value> wrapper, void *arg) {
   HandleScope scope;
   ALACEncoder *encoder = (ALACEncoder *)arg;
@@ -107,11 +81,11 @@ Handle<Value> NewEncoder(const Arguments& args) {
   return scope.Close(o);
 }
 
-Handle<Value> EncodePacket(const Arguments& args) {
+Handle<Value> EncodeALAC(const Arguments& args) {
   HandleScope scope;
 
   if(args.Length() < 4) {
-    printf("expected: EncodePacket(encoder, pcmData, pcmSize, alacData, alacSize)\n");
+    printf("expected: EncodeALAC(encoder, pcmData, pcmSize, alacData, alacSize)\n");
     return scope.Close(Null());
   }
 
@@ -133,13 +107,48 @@ Handle<Value> EncodePacket(const Arguments& args) {
   int32_t alacSize = pcmSize;
   encoder->Encode(inputFormat, outputFormat, pcmData, alacData, &alacSize);
 
-  AESEncrypt(alacData, alacSize);
-
   return scope.Close(Integer::New(alacSize));
 }
 
+Handle<Value> EncryptAES(const Arguments& args) {
+  HandleScope scope;
+
+  if(args.Length() < 2) {
+    printf("expected: EncryptAES(alacData, alacSize)\n");
+    return scope.Close(Null());
+  }
+
+  Local<Value> alacBuffer = args[0];
+  unsigned char* alacData = (unsigned char*)Buffer::Data(alacBuffer->ToObject());
+  int32_t alacSize = args[1]->Int32Value();
+
+  // This will encrypt data in-place
+  uint8_t *buf;
+  int i = 0, j;
+  uint8_t nv[kBlockSize];
+
+  aes_context ctx;
+  aes_set_key(&ctx, aes_key, 128);
+  memcpy(nv, iv, kBlockSize);
+
+  while(i + kBlockSize <= alacSize) {
+    buf = alacData + i;
+
+    for(j = 0; j < kBlockSize; j++)
+      buf[j] ^= nv[j];
+
+    aes_encrypt(&ctx, buf, buf);
+    memcpy(nv, buf, kBlockSize);
+
+    i += kBlockSize;
+  }
+
+  return scope.Close(Null());
+}
+
 void InitCodec(Handle<Object> target) {
-  NODE_SET_METHOD(target, "encodePacket", EncodePacket);
+  NODE_SET_METHOD(target, "encodeALAC", EncodeALAC);
+  NODE_SET_METHOD(target, "encryptAES", EncryptAES);
   NODE_SET_METHOD(target, "newEncoder", NewEncoder);
 }
 
