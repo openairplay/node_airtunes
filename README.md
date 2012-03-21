@@ -47,6 +47,7 @@ Credits
 - [The Airtunes 2 Team](http://git.zx2c4.com/Airtunes2/about/)
 - Cl&eacute;ment Vasseur for [Air Speaker](https://github.com/nto/AirSpeaker)
 - [Rogue Amoeba Software, LLC](http://www.rogueamoeba.com/) for AirFoil
+- Julien Blache for this [blog post](http://blog.technologeek.org/airtunes-v2)
 - Apple Inc and [Apple Lossless Audio Codec](http://alac.macosforge.org/)
 
 Usage
@@ -134,6 +135,7 @@ Node-airtunes was tested on the following devices:
 * AirFoil Speakers
 * Air Speaker
 * Freebox Server
+* Apple TV
 
 Ping me to add more devices to this list.
 
@@ -192,5 +194,5 @@ The stream is first split in chunks by the circular buffer, each chunk containin
 
 It is then compressed with [Apple Lossless](http://fr.wikipedia.org/wiki/Apple_Lossless), which was made public by Apple. The ALAC packet is then encrypted with AES. The key is chosen by the client and sent to devices during the `ANNOUNCE` query. We use native code to compress and encrypt packets. A gotcha: AES works by encrypting 16-byte chunks and the remaining bytes are not encrypted.
 
-Since we have no congestion control (UDP, remember), packets must be sent at the right time. There are 44,100 frames per second, so we need to send around 125 packets per second. Ideally, we should send a packet every 7-8 ms, but node.js's timing is not reliable at this precision. To make it work, we trigger a timeout every `config.stream\_latency` ms. At each iteration, we compute the sequence number of the packet that we should be sending right now and we catch-up by sending in a burst all the packets that should have been sent since the last iteration. A higher latency reduces the CPU usage, but results in larger UDP bursts.
+Since we have no congestion control (UDP, remember), packets must be sent at the right time. There are 44,100 frames per second, so we need to send around 125 packets per second. Ideally, we should send a packet every 7-8 ms, but node.js's timing is not reliable at this precision. To make it work, we trigger a timeout every `config.stream_latency` ms. At each iteration, we compute the sequence number of the packet that we should be sending right now and we catch-up by sending in a burst all the packets that should have been sent since the last iteration. A higher latency reduces the CPU usage, but results in larger UDP bursts.
 
