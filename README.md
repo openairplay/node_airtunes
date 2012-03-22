@@ -136,6 +136,7 @@ Node-airtunes was tested on the following devices:
 * Air Speaker
 * Freebox Server
 * Apple TV
+* Zeppelin Air
 
 Ping me to add more devices to this list.
 
@@ -152,7 +153,7 @@ node-airtunes is available under the BSD license.
 How does it work ?
 ------------------
 
-If you want detailed information about AirTunes v2, you should read the excellent documentation written by the [Airtunes 2 Team](http://git.zx2c4.com/Airtunes2/about/). I'm including this short explanations for those not familiar with audio streaming in general.
+If you want detailed information about AirTunes v2, you should read the excellent documentation written by the [Airtunes 2 Team](http://git.zx2c4.com/Airtunes2/about/). I'm including theses short explanations for those not familiar with audio streaming in general.
 
 While being promoted as a proprietary protocol, AirTunes is really built on several existing protocols (RTSP, RTP and NTP) with several quirks. Not reinventing the wheel is a good thing.
 
