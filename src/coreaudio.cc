@@ -1,7 +1,6 @@
 #include <node.h>
 #include <node_buffer.h>
 #include <v8.h>
-#include <ev.h>
 //Includes from phoenixLib iOS HAL
 #include <stdio.h>
 #include <time.h>

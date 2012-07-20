@@ -22,4 +22,4 @@ void Initialize(Handle<Object> target) {
 
 } // nodeairtunes namespace
 
-NODE_MODULE(bindings, nodeairtunes::Initialize);
+NODE_MODULE(airtunes, nodeairtunes::Initialize);

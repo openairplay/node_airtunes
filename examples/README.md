@@ -1,4 +1,4 @@
-Simple examples to demonstrate the module:
+Simple examples to demonstrate the module. You can try it with (AirFoil Speakers)[http://rogueamoeba.com/airfoil/] if you do not own an AirPlay device.
 
 `play_stdin.js`: Play PCM data passed from stdin:
 
