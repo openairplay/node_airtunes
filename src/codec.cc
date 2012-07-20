@@ -6,7 +6,10 @@
 #include <openssl/engine.h>
 #include <openssl/rand.h>
 
+extern "C" {
 #include "aes_utils.h"
+}
+
 #include "base64.h"
 
 #include "../alac/ALACEncoder.h"

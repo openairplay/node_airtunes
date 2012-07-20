@@ -1,13 +1,14 @@
 var airtunes = require('../lib/'),
     argv = require('optimist')
       .usage('Usage: $0 --host [host] --port [num] --volume [num] --password [string]')
+      .default('host', 'localhost')
       .default('port', 5000)
       .default('volume', 50)
       .demand(['host'])
       .argv;
 
 console.log('pipe PCM data to play over AirTunes');
-console.log('example: cat ./sample.pcm | node play_stdin.js --host <AirTunes host>\n');
+console.log('example: cat sample.pcm | node play_stdin.js --host <AirTunes host>\n');
 
 // Only works on OSX
 // airtunes.addCoreAudio();
