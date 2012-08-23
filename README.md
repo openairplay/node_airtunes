@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/radioline/node_airtunes.png)](http://travis-ci.org/radioline/node_airtunes)
 node-airtunes - a node.js implementation of AirTunes v2
 =======================================================
 
