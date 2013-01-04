@@ -7,7 +7,13 @@ if(os.platform() !== 'darwin') {
   process.exit(1);
 }
 
-exec('mDNS -B _raop._tcp', {
+// Mountain Lion 12.0.0 replaces mDNS with dns-sd
+if(os.release() < '12')
+  var mdns = 'mDNS';
+else
+  var mdns = 'dns-sd';
+
+exec(mdns + ' -B _raop._tcp', {
   timeout: 300
 }, function(error, stdout) {
   var devices = [];
@@ -23,10 +29,10 @@ exec('mDNS -B _raop._tcp', {
   });
 
   devices.forEach(function(dev) {
-    exec('mDNS -L "' + dev.mac + '@' + dev.name + '" _raop._tcp local', {
+    exec(mdns + ' -L "' + dev.mac + '@' + dev.name + '" _raop._tcp local', {
       timeout: 300
     }, function(error, stdout) {
-      var res = /Service can be reached at\s+(\S*)\s+:(\d+)/.exec(stdout);
+      var res = /can be reached at\s+(\S*)\s*:(\d+)/.exec(stdout);
       if(!res)
         console.log(dev.name + ' no match');
       else
