@@ -137,6 +137,7 @@ Node-airtunes was tested on the following devices:
 * Freebox Server
 * Apple TV
 * Zeppelin Air
+* Raspberry PI
 
 Ping me to add more devices to this list.
 
