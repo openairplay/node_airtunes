@@ -17,6 +17,9 @@
   "dependencies": {
     "async": "0.1.18"
   },
+  "devDependencies": {
+    "optimist": "*"
+  },
   "bugs": {
     "url": "https://github.com/radioline/node_airtunes/issues"
   }
