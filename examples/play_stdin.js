@@ -19,6 +19,7 @@ var device = airtunes.add(argv.host, argv);
 
 // when the device is online, spawn ffmpeg to transcode the file
 device.on('status', function(status) {
+  process.stdin.on('data', function () {});
   process.stdin.pipe(airtunes);
   process.stdin.resume();
 });
