@@ -27,7 +27,14 @@ device.on('status', function(status) {
 device.on('error', function(err) {
   console.log('device error: ' + err);
   process.exit(1);
-})
+});
+
+setTimeout(function () {
+  console.log('stopping');
+  airtunes.stopAll(function () {
+    console.log('all stopped');
+  });
+}, 1000);
 
 // monitor buffer events
 airtunes.on('buffer', function(status) {
