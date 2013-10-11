@@ -53,6 +53,10 @@ Credits
 Usage
 -----
 
+### Build
+
+`node-gyp configure build`
+
 ### Playback
 
 `airtunes` is a writable stream which accepts 16 bits, little-endian, stereo PCM data.
