@@ -2,7 +2,7 @@
   "name": "airtunes",
   "description": "an AirTunes v2 implementation: stream wirelessly to audio devices.",
   "keywords": ["airtunes", "airplay", "raop", "coreaudio", "sound", "audio"],
-  "version": "0.1.5",
+  "version": "0.1.6",
   "author": "Laurent Perrin <laurent.perrin@gmail.com>",
   "main": "./lib/index.js",
   "repository": {
