@@ -143,6 +143,7 @@ Node-airtunes was tested on the following devices:
 * Zeppelin Air
 * Raspberry PI
 * Bose SoundTouch
+* JBL SoundFly
 
 Ping me to add more devices to this list.
 
