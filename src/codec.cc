@@ -80,13 +80,13 @@ void NewEncoder(const FunctionCallbackInfo<Value>& args) {
   encoder->SetFrameSize(kFramesPerPacket);
   encoder->InitializeEncoder(outputFormat);
 
-  //Persistent<ObjectTemplate> encoderClass (isolate, ObjectTemplate::New());
-//  encoderClass->SetInternalFieldCount(1);
-  Persistent<Object> o = (isolate, encoder);
-//  o->SetPointerInInternalField(0, encoder);
-  //o.SetWeak(encoder, encoder_weak_callback);
+  Local<ObjectTemplate> point_templ = ObjectTemplate::New(isolate);
+  point_templ->SetInternalFieldCount(1);
 
-//  args.GetReturnValue().Set(o);
+  Local<Object> obj = point_templ->NewInstance();
+  obj->SetInternalField(0, External::New(isolate, encoder));
+
+  args.GetReturnValue().Set(obj);
 }
 
 void EncodeALAC(const FunctionCallbackInfo<Value>& args) {
@@ -104,8 +104,7 @@ void EncodeALAC(const FunctionCallbackInfo<Value>& args) {
   Local<Object>wrapper = args[0]->ToObject();
 //  ALACEncoder *encoder = (ALACEncoder*)wrapper->GetPointerFromInternalField(0);
 
-//  ALACEncoder *encoder = (ALACEncoder*)wrapper->GetAlignedPointerFromInternalField(0);
-  ALACEncoder *encoder = new ALACEncoder();
+  ALACEncoder *encoder = (ALACEncoder*)wrapper->GetAlignedPointerFromInternalField(0);
 
   Local<Value> pcmBuffer = args[1];
   unsigned char* pcmData = (unsigned char*)Buffer::Data(pcmBuffer->ToObject());
