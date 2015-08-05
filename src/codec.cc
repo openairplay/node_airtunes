@@ -80,11 +80,11 @@ void NewEncoder(const FunctionCallbackInfo<Value>& args) {
   encoder->SetFrameSize(kFramesPerPacket);
   encoder->InitializeEncoder(outputFormat);
 
-  Local<ObjectTemplate> point_templ = ObjectTemplate::New(isolate);
-  point_templ->SetInternalFieldCount(1);
+  Local<ObjectTemplate> encoderClass = ObjectTemplate::New(isolate);
+  encoderClass->SetInternalFieldCount(1);
 
-  Local<Object> obj = point_templ->NewInstance();
-  obj->SetInternalField(0, External::New(isolate, encoder));
+  Local<Object> obj = encoderClass->NewInstance();
+  obj->SetAlignedPointerInInternalField(0, encoder);
 
   args.GetReturnValue().Set(obj);
 }
