@@ -55,20 +55,10 @@ void FillOutputAudioFormat(AudioFormatDescription *format) {
   format->mReserved = 0;
 }
 
-void encoder_weak_callback (const WeakCallbackData<Value, const char*>&data) {
-  //HandleScope scope;
-  //ALACEncoder *encoder = (ALACEncoder *)
-  //data[0];
-  //delete encoder;
-  //wrapper.Dispose();
-  //wrapper.Reset();
-}
-
 // Creates a new encoder instance and wraps it in a JavaScript object.
 // This encoder is freed when the object is released by the GC.
 //Handle<Value> NewEncoder(const Arguments& args) {
 void NewEncoder(const FunctionCallbackInfo<Value>& args) {
-  //HandleScope scope;
   Isolate* isolate = Isolate::GetCurrent();
   EscapableHandleScope scope(isolate);
 
@@ -90,9 +80,6 @@ void NewEncoder(const FunctionCallbackInfo<Value>& args) {
 }
 
 void EncodeALAC(const FunctionCallbackInfo<Value>& args) {
-//Handle<Value> EncodeALAC(const Arguments& args) {
-  //HandleScope scope;
-
   Isolate* isolate = Isolate::GetCurrent();
   EscapableHandleScope scope(isolate);
 
@@ -102,8 +89,6 @@ void EncodeALAC(const FunctionCallbackInfo<Value>& args) {
   }
 
   Local<Object>wrapper = args[0]->ToObject();
-//  ALACEncoder *encoder = (ALACEncoder*)wrapper->GetPointerFromInternalField(0);
-
   ALACEncoder *encoder = (ALACEncoder*)wrapper->GetAlignedPointerFromInternalField(0);
 
   Local<Value> pcmBuffer = args[1];
@@ -121,12 +106,10 @@ void EncodeALAC(const FunctionCallbackInfo<Value>& args) {
   int32_t alacSize = pcmSize;
   encoder->Encode(inputFormat, outputFormat, pcmData, alacData, &alacSize);
 
-  //return scope.Close(Integer::New(alacSize));
   args.GetReturnValue().Set(Integer::New(isolate, alacSize));
 }
 
 void EncryptAES(const FunctionCallbackInfo<Value>& args) {
-  //HandleScope scope;
   Isolate* isolate = v8::Isolate::GetCurrent();
   EscapableHandleScope scope(isolate);
 
@@ -160,7 +143,6 @@ void EncryptAES(const FunctionCallbackInfo<Value>& args) {
     i += kBlockSize;
   }
 
-  //return scope.Close(Null());
   args.GetReturnValue().Set(Null(isolate));
 }
 
