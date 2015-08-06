@@ -2,10 +2,10 @@ var airtunes = require('../lib/'),
     spawn = require('child_process').spawn,
     argv = require('optimist')
       .usage('Usage: $0 --host [host] --port [num] --ffmpeg [path] --file [path] --volume [num] --password [string]')
-      .default('port', 5000)
+      .default('port', 5002)
       .default('volume', 50)
       .default('ffmpeg', '/usr/local/bin/ffmpeg')
-      .default('file', './sample.mp3')
+      .default('file', './wakeup.mp3')
       .demand(['host'])
       .argv;
 
