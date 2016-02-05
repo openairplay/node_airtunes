@@ -12,7 +12,9 @@ void InitCoreAudio(Handle<Object>);
 #endif
 
 void Initialize(Handle<Object> target) {
-  HandleScope scope;
+
+  Isolate* isolate = v8::Isolate::GetCurrent();
+  HandleScope scope(isolate);
 
   InitCodec(target);
 #ifdef __APPLE__

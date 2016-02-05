@@ -1,3 +1,13 @@
+// Conversion to modern node (v4)
+//
+// TODO: understand. I have no idea what I'm doing here. HandleScope/Isolate?
+//
+// https://nodejs.org/api/addons.html
+// https://developers.google.com/v8/embed?hl=en
+// https://strongloop.com/strongblog/node-js-v0-12-c-apis-breaking/
+// https://github.com/nodejs/nan/blob/master/doc/persistent.md
+
+
 #include <node.h>
 #include <node_buffer.h>
 #include <v8.h>
@@ -43,11 +53,9 @@ namespace nodeairtunes {
   };
 
   // This will free the AudioQueue when the wraping JS object is released by the GC
-  void coreAudio_weak_callback(v8::Persistent<v8::Value> wrapper, void *arg) {
-    v8::HandleScope scope;
-    struct coreAudioObjects *coreAudio = (struct coreAudioObjects *) arg;
+  void coreAudio_weak_callback(const v8::WeakCallbackInfo<coreAudioObjects> &data) {
+    struct coreAudioObjects *coreAudio = (struct coreAudioObjects *) data.GetParameter();
     AudioQueueDispose(coreAudio->audioQueue, true);
-    wrapper.Dispose();
   }
 
   void OnAudioQueueBufferConsumed(void *inUserData, AudioQueueRef inAQ, AudioQueueBufferRef inBuffer) {
@@ -110,15 +118,20 @@ namespace nodeairtunes {
     pthread_mutex_unlock(&(coreAudio->queueBuffersMutex));
   }
 
-  v8::Handle<v8::Value> NewCoreAudio(const v8::Arguments& args) {
-    v8::HandleScope scope;
+  void NewCoreAudio(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    v8::Isolate* isolate = args.GetIsolate();
 
-    struct coreAudioObjects *coreAudio = (struct coreAudioObjects *) malloc(sizeof (*coreAudio));
-    v8::Persistent<v8::ObjectTemplate> coreAudioClass = v8::Persistent<v8::ObjectTemplate>::New(v8::ObjectTemplate::New());
-    coreAudioClass->SetInternalFieldCount(1);
-    v8::Persistent<v8::Object> o = v8::Persistent<v8::Object>::New(coreAudioClass->NewInstance());
-    o->SetPointerInInternalField(0, coreAudio);
-    o.MakeWeak(coreAudio, coreAudio_weak_callback);
+    v8::HandleScope handle_scope(isolate);
+
+    struct coreAudioObjects *coreAudio
+      = (struct coreAudioObjects *) malloc(sizeof (*coreAudio));
+
+    v8::Persistent<v8::Object> o;
+    o.SetWeak(
+      coreAudio, 
+      coreAudio_weak_callback, 
+      v8::WeakCallbackType::kParameter
+    );
 
     coreAudio->isPlaying = false;
     coreAudio->buffersUsed = 0;
@@ -143,7 +156,8 @@ namespace nodeairtunes {
     // Allocating AudioQueue
 
     if ((LRet = AudioQueueNewOutput(&LFormat, OnAudioQueueBufferConsumed, coreAudio, NULL, NULL, 0, &(coreAudio->audioQueue)))) {
-      return scope.Close(v8::Null());
+      args.GetReturnValue().Set(v8::Null(isolate));
+      return;
     }
 
     OSStatus status = 0;
@@ -154,19 +168,20 @@ namespace nodeairtunes {
       coreAudio->inuse[i] = false;
     }
 
-    return scope.Close(o);
+    args.GetReturnValue().Set(o);
   }
 
-  v8::Handle<v8::Value> EnqueuePacket(const v8::Arguments& args) {
-    v8::HandleScope scope;
+  void EnqueuePacket(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    v8::Isolate* isolate = args.GetIsolate();
 
     if (args.Length() < 3) {
       printf("expected: EnqueuePacket(coreAudio, pcmData, pcmSize)\n");
-      return scope.Close(v8::Null());
+      args.GetReturnValue().Set(v8::Null(isolate));
+      return;
     }
 
-    v8::Local<v8::Object>wrapper = args[0]->ToObject();
-    struct coreAudioObjects *coreAudio = (struct coreAudioObjects *) wrapper->GetPointerFromInternalField(0);
+    v8::Local<v8::Object> wrapper = args[0]->ToObject();
+    struct coreAudioObjects *coreAudio = (struct coreAudioObjects *) *wrapper;
 
     v8::Local<v8::Value> pcmBuffer = args[1];
     unsigned char* pcmData = (unsigned char*) (Buffer::Data(pcmBuffer->ToObject()));
@@ -204,23 +219,24 @@ namespace nodeairtunes {
       offset += copySize;
     }
 
-    return scope.Close(v8::Null());
+    args.GetReturnValue().Set(v8::Null(isolate));
   }
 
-  v8::Handle<v8::Value> Play(const v8::Arguments& args) {
-    v8::HandleScope scope;
+  void Play(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    v8::Isolate* isolate = args.GetIsolate();
 
     if (args.Length() < 2) {
       printf("expected: Play(coreAudio, audioQueueTimeRef)\n");
-      return scope.Close(v8::Null());
+      args.GetReturnValue().Set(v8::Null(isolate));
+      return;
     }
 
-    v8::Local<v8::Object>wrapper = args[0]->ToObject();
-    struct coreAudioObjects *coreAudio = (struct coreAudioObjects *) wrapper->GetPointerFromInternalField(0);
+    v8::Local<v8::Object> wrapper = args[0]->ToObject();
+    struct coreAudioObjects *coreAudio = (struct coreAudioObjects *) *wrapper;
 
     int64_t timeStamp = args[1]->IntegerValue();
 
-    AudioTimeStamp myAudioQueueStartTime = {0};
+    AudioTimeStamp myAudioQueueStartTime; // = {0};
     Float64 theNumberOfSecondsInTheFuture = timeStamp/44100.0;
 
     Float64 hostTimeFreq = CAHostTimeBase::GetFrequency();
@@ -237,19 +253,20 @@ namespace nodeairtunes {
       }
     }
 
-    return scope.Close(v8::Null());
+    args.GetReturnValue().Set(v8::Null(isolate));
   }
 
-  v8::Handle<v8::Value> Stop(const v8::Arguments& args) {
-    v8::HandleScope scope;
+  void Stop(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    v8::Isolate* isolate = args.GetIsolate();
 
     if (args.Length() < 1) {
-      printf("expected: Play(coreAudio)\n");
-      return scope.Close(v8::Null());
+      printf("expected: Play(coreAudio)\n");      
+      args.GetReturnValue().Set(v8::Null(isolate));
+      return;
     }
 
-    v8::Local<v8::Object>wrapper = args[0]->ToObject();
-    struct coreAudioObjects *coreAudio = (struct coreAudioObjects *) wrapper->GetPointerFromInternalField(0);
+    v8::Local<v8::Object> wrapper = args[0]->ToObject();
+    struct coreAudioObjects *coreAudio = (struct coreAudioObjects *) *wrapper;
 
     if (coreAudio->isPlaying) {
       if (AudioQueueStop(coreAudio->audioQueue, true)) {
@@ -259,34 +276,36 @@ namespace nodeairtunes {
       }
     }
 
-    return scope.Close(v8::Null());
+    args.GetReturnValue().Set(v8::Null(isolate));
   }
 
-  v8::Handle<v8::Value> SetVolume(const v8::Arguments& args) {
-    v8::HandleScope scope;
+  void SetVolume(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    v8::Isolate* isolate = args.GetIsolate();
 
     if (args.Length() < 1) {
       printf("expected: Play(coreAudio)\n");
-      return scope.Close(v8::Null());
+      args.GetReturnValue().Set(v8::Null(isolate));
+      return;
     }
 
-    v8::Local<v8::Object>wrapper = args[0]->ToObject();
-    struct coreAudioObjects *coreAudio = (struct coreAudioObjects *) wrapper->GetPointerFromInternalField(0);
+    v8::Local<v8::Object> wrapper = args[0]->ToObject();
+    struct coreAudioObjects *coreAudio = (struct coreAudioObjects *) *wrapper;
     float volumeToSet=args[1]->IntegerValue()/100.0;
 
     if (coreAudio->isPlaying)
       AudioQueueSetParameter(coreAudio->audioQueue, kAudioQueueParam_Volume, volumeToSet);
 
-    return scope.Close(v8::Null());
+    args.GetReturnValue().Set(v8::Null(isolate));
   }
-  
-  v8::Handle<v8::Value> GetBufferLevel(const v8::Arguments& args) {
-    v8::HandleScope scope;
-    v8::Local<v8::Object>wrapper = args[0]->ToObject();
-    struct coreAudioObjects *coreAudio = (struct coreAudioObjects *) wrapper->GetPointerFromInternalField(0);
-    v8::Handle<v8::Integer> o= v8::Integer::New((int)((coreAudio->buffersUsed/(float)NUMBER_OF_BUFFERS)*100));
 
-    return scope.Close(o);
+  void GetBufferLevel(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    v8::Isolate* isolate = args.GetIsolate();
+
+    v8::Local<v8::Object> wrapper = args[0]->ToObject();
+    struct coreAudioObjects *coreAudio = (struct coreAudioObjects *) *wrapper;
+    v8::Local<v8::Integer> o = v8::Integer::New(isolate, (int)((coreAudio->buffersUsed/(float)NUMBER_OF_BUFFERS)*100));
+
+    args.GetReturnValue().Set(o);
   }
 
   void InitCoreAudio(v8::Handle<v8::Object> target) {
